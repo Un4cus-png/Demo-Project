@@ -29,7 +29,7 @@ public class UserEntity {
     @Size(min = 2, max = 30)
     @Pattern(regexp = "^[A-Za-z]+$", message = "Last name must contain only letters")
     private String lastName;
-
+//
     @NotBlank
     @Size(min = 4, max = 20)
     private String username;
