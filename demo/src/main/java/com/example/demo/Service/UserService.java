@@ -12,5 +12,5 @@ public interface UserService {
 
     UserEntity getUserById(Long id);
     UserEntity updateUser(Long id, UserEntity user);
-    void softDeleteUser(Long id);
+    void DeleteUser(Long id);
 }
