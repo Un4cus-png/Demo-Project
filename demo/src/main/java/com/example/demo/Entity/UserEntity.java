@@ -6,7 +6,7 @@ import jakarta.validation.constraints.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import jakarta.validation.constraints.Pattern;
-import javax.management.relation.Role;
+import com.example.demo.Enums.Role;
 import java.time.LocalDateTime;
 
 @Entity
