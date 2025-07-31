@@ -2,7 +2,6 @@ package com.example.demo.Entity;
 
 import com.example.demo.Enums.Status;
 import jakarta.persistence.*;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -33,7 +32,6 @@ public class UserEntity {
 //
     @NotBlank
     @Size(min = 4, max = 20)
-    @Valid
     private String username;
 
     @NotBlank
@@ -41,12 +39,13 @@ public class UserEntity {
     private String email;
 
     @NotBlank
-    @Valid
     @Pattern(
             regexp = "^(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*]).{8,}$",
             message = "Password must be at least 8 characters long and include at least one uppercase letter, one number, and one special character"
     )
     private String password;
+
+    private boolean deleted = false;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -121,5 +120,14 @@ public class UserEntity {
 
     public void setStatus(Status status) {
         this.status = status;
+    }
+
+    public boolean isDeleted() {
+        return deleted;
+    }
+
+    // Setter for deleted
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
     }
 }

@@ -4,6 +4,7 @@ import com.example.demo.Dto.UserDto;
 import com.example.demo.Entity.UserEntity;
 import com.example.demo.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -51,18 +52,21 @@ public class UserServiceImpl implements UserService {
         user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         return convertToDto(userRepository.save(user));
     }
-
+    
     @Override
     public List<UserDto> getAllUsers() {
-        return userRepository.findAll().stream()
-                .map(this::convertToDto)
-                .collect(Collectors.toList());
+        List<UserEntity> users = userRepository.findByDeletedFalse();
+        return users.stream().map(this::convertToDto).toList();
     }
 
     @Override
     public UserDto getUserById(Long id) {
         UserEntity user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with id " + id));
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (user.isDeleted()) {
+            throw new RuntimeException("User is deleted");
+        }
         return convertToDto(user);
     }
 
@@ -77,12 +81,17 @@ public class UserServiceImpl implements UserService {
         existingUser.setStatus(userDto.getStatus());
         existingUser.setRoles(userDto.getRoles());
         existingUser.setCreatedDate(userDto.getCreatedDate());
-
+        existingUser.setUsername(userDto.getUsername());
+        existingUser.setPassword(bCryptPasswordEncoder.encode(userDto.getPassword()));
         return convertToDto(userRepository.save(existingUser));
     }
 
     @Override
     public void DeleteUser(Long id) {
-        userRepository.deleteById(id);
+        UserEntity user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        user.setDeleted(true);
+        userRepository.save(user);
     }
 }
