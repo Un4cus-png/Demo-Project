@@ -2,13 +2,14 @@ package com.example.demo.Service;
 
 import com.example.demo.Dto.UserDto;
 import com.example.demo.Entity.UserEntity;
+import com.example.demo.Exception.UsernameAlreadyExistsException;
 import com.example.demo.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,6 +33,7 @@ public class UserServiceImpl implements UserService {
     // Convert DTO to Entity
     private UserEntity convertToEntity(UserDto dto) {
         UserEntity user = new UserEntity();
+        user.setId(dto.getId());
         user.setFirstName(dto.getFirstName());
         user.setLastName(dto.getLastName());
         user.setEmail(dto.getEmail());
@@ -48,11 +50,16 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto createUser(UserDto userDto) {
+
+        if(userRepository.existsByUsername(userDto.getUsername())){
+            throw new UsernameAlreadyExistsException("Username already exists");  // handling duplicate uer
+        }
+
         UserEntity user = convertToEntity(userDto);
         user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         return convertToDto(userRepository.save(user));
     }
-    
+
     @Override
     public List<UserDto> getAllUsers() {
         List<UserEntity> users = userRepository.findByDeletedFalse();
@@ -74,6 +81,11 @@ public class UserServiceImpl implements UserService {
     public UserDto updateUser(Long id, UserDto userDto) {
         UserEntity existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found with id " + id));
+
+        Optional<UserEntity> userWithSameUsername = userRepository.findByUsername(userDto.getUsername());
+        if (userWithSameUsername.isPresent() && !userWithSameUsername.get().getId().equals(id)){
+            throw new UsernameAlreadyExistsException("Username already exists");
+        }
 
         existingUser.setFirstName(userDto.getFirstName());
         existingUser.setLastName(userDto.getLastName());
