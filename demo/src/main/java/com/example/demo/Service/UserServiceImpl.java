@@ -22,6 +22,7 @@ public class UserServiceImpl implements UserService {
     private UserDto convertToDto(UserEntity user) {
         UserDto dto = new UserDto();
         dto.setFirstName(user.getFirstName());
+        dto.setId(user.getId());
         dto.setLastName(user.getLastName());
         dto.setEmail(user.getEmail());
         dto.setCreatedDate(user.getCreatedDate());
